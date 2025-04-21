@@ -18,9 +18,8 @@ export const Link = ({target, to, ...props}) => {
       if(isMainEvent && isManagableEvent && !isModifiedEvent){
         event.preventDefault();
         navigate(to)  //Navegacion por SPA
+        window.scrollTo(0,0)
       }
-
-
     }
 
     return <a onClick={handleClick} href={to} target={target} {...props} />
