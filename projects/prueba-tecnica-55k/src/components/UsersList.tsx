@@ -1,11 +1,12 @@
-import { type User } from '../../../google-translate-clone/src/types/type';
+import { type User } from '../type';
 
 interface Props {
-    users: User[]
+    users: User[],
+    showColor: boolean
 }
 
 
-const UsersList = ({users}: Props) => {
+const UsersList = ({users, showColor}: Props) => {
 
     return (
         <table width="100%">
@@ -20,9 +21,11 @@ const UsersList = ({users}: Props) => {
             </thead>
             <tbody>
                 {
-                    users.map( user => {
+                    users.map( (user, index) => {
+                        const backGroundColor = index % 2 === 0 ? '#333' : '#555'
+                        const color = showColor ? backGroundColor : 'transparent'
                         return (
-                            <tr key={user.id.value}>
+                            <tr key={user.id.value} style={{ backgroundColor: color}}>
                                 <td>
                                     <img src={user.picture.thumbnail}/>
                                 </td>
