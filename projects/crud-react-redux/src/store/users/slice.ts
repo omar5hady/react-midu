@@ -18,7 +18,7 @@ const DEFAULT_STATE = [
     { id: '3', name: "Jose Juan", email: "pelu@gmail.com", github: 'ElPelu' },
 ]
 
-const initialState: UserWithId[] = ( () => {
+const initialState: UserWithId[] = (() => {
     const persistedState = localStorage.getItem("__redux__state__");
     if (persistedState) return JSON.parse(persistedState).users;
     return DEFAULT_STATE;
@@ -32,11 +32,19 @@ export const userSlice = createSlice({
             const id = action.payload
             return state.filter((user) => user.id !== id);
         },
-        addNewUser: ( state, action: PayloadAction<User>) => {
+        addNewUser: (state, action: PayloadAction<User>) => {
             const id = crypto.randomUUID()
-            return [...state, {
-                id, ...action.payload
-            }]
+            //Immer para mutar directamente el state en lugar de retornar un nuevo estado
+            state.push({ id, ...action.payload })
+            // return [...state, {
+            //     id, ...action.payload
+            // }]
+        },
+        rollbackUser: (state, action: PayloadAction<UserWithId>) => {
+            const isUserAlreadyDefine = state.some(user => user.id === action.payload.id)
+            if (!isUserAlreadyDefine) {
+                return [...state, action.payload]
+            }
         }
     }
 })
@@ -45,3 +53,4 @@ export default userSlice.reducer;
 
 export const { deleteUserById } = userSlice.actions
 export const { addNewUser } = userSlice.actions
+export const { rollbackUser } = userSlice.actions

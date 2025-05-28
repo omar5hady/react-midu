@@ -1,5 +1,6 @@
 import CreateNewUser from './components/CreateNewUser'
 import { ListOfUsers } from './components/ListOfUsers'
+import { Toaster } from 'sonner'
 
 function App() {
 
@@ -8,6 +9,7 @@ function App() {
       <h1>Nuestro Proyecto con Redux</h1>
       <ListOfUsers/>
       <CreateNewUser/>
+      <Toaster richColors/>
     </>
   )
 }
