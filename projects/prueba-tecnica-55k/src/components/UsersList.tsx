@@ -1,33 +1,37 @@
-import { type User } from '../type';
+import { SortBy, type User } from '../type.d';
 
 interface Props {
+    handleChangeSort: (sort: SortBy) => void
+    deleteUser: (uuid: string) => void;
     users: User[],
     showColor: boolean
 }
 
 
-const UsersList = ({users, showColor}: Props) => {
+const UsersList = ({ users, showColor, deleteUser, handleChangeSort }: Props) => {
 
     return (
         <table width="100%">
             <thead>
                 <tr>
                     <th>Foto</th>
-                    <th>Nombre</th>
-                    <th>Apellidos</th>
-                    <th>País</th>
+                    <th onClick={() => handleChangeSort(SortBy.NAME)}>Nombre</th>
+                    <th onClick={() => handleChangeSort(SortBy.LAST)}>Apellidos</th>
+                    <th onClick={() => handleChangeSort(SortBy.COUNTRY)}>País</th>
                     <th>Acciones</th>
                 </tr>
             </thead>
-            <tbody>
+            <tbody className={showColor ? 'table--colors' : ''}>
                 {
-                    users.map( (user, index) => {
-                        const backGroundColor = index % 2 === 0 ? '#333' : '#555'
-                        const color = showColor ? backGroundColor : 'transparent'
+                    users.map((user) => {
+                        // const backGroundColor = index % 2 === 0 ? '#333' : '#555'
+                        // const color = showColor ? backGroundColor : 'transparent'
                         return (
-                            <tr key={user.id.value} style={{ backgroundColor: color}}>
+                            <tr key={user.login.uuid}
+                            // style={{ backgroundColor: color}}
+                            >
                                 <td>
-                                    <img src={user.picture.thumbnail}/>
+                                    <img src={user.picture.thumbnail} />
                                 </td>
                                 <td>
                                     {user.name.first}
@@ -39,7 +43,7 @@ const UsersList = ({users, showColor}: Props) => {
                                     {user.location.country}
                                 </td>
                                 <td>
-                                    <button>Eliminar</button>
+                                    <button onClick={() => deleteUser(user.login.uuid)}>Eliminar</button>
                                 </td>
                             </tr>
                         )

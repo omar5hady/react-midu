@@ -5,3 +5,19 @@
   text-align: center;
   width: 100%;
 }
+
+header {
+  display: flex;
+  gap: 4px;
+  margin-bottom: 40px;
+  justify-content: center;
+  align-items: center;
+}
+
+.table--colors tr:nth-child(even){
+  background: #555;
+}
+
+.table--colors tr:nth-child(odd){
+  background: #333;
+}
