@@ -1,17 +1,31 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useMemo, useState } from 'react'
 import './App.css'
 import { SortBy, type User } from './type.d';
 import UsersList from './components/UsersList';
+import { useUsers } from './hooks/useUsers';
+import Results from './components/Results';
 
 function App() {
-  const [users, setUsers] = useState<User[]>([])
+
+  // const [users, setUsers] = useState<User[]>([])
   const [showColor, setShowColor] = useState(false)
   const [sorting, setSorting] = useState<SortBy>(SortBy.NONE)
   const [filterCountry, setFilterCountry] = useState<string | null>(null)
-  const originalUsers = useRef<User[]>([])
+  // const [loading, setLoading] = useState(false)
+  // const [error, setErrror] = useState(false)
+  // const [currentPage, setCurrentPage] = useState(1)
+  // const originalUsers = useRef<User[]>([])
   // UseRef -> para guardar un valor
   // que queremos que se comparta entre renderizados
   // pero que al cambiar no vuelva a renderizar el componente
+
+  const { isLoading,
+    isError,
+    users,
+    refetch,
+    fetchNextPage,
+    hasNextPage
+  } = useUsers()
 
   const toggleColors = () => {
     setShowColor(!showColor)
@@ -26,17 +40,23 @@ function App() {
     setSorting(sort);
   }
 
-  const getUsers = () => {
-    fetch('https://randomuser.me/api/?results=100')
-      .then(res => res.json())
-      .then(res => {
-        setUsers(res.results)
-        originalUsers.current = res.results
-      })
-      .catch(err => {
-        console.log(err);
-      })
-  }
+  // const getUsers = (page: number) => {
+  //   setLoading(true)
+
+  //   fetchUsers(currentPage).then(users => {
+  //     setUsers((prevRes) => prevRes.concat(users))
+  //     if (page === 1) {
+  //       originalUsers.current = users
+  //     }
+  //   })
+  //     .catch(err => {
+  //       console.log(err);
+  //       setErrror(true)
+  //     })
+  //     .finally(() => {
+  //       setLoading(false)
+  //     })
+  // }
 
   const filteredUsers = useMemo(() => {
     return filterCountry != null && filterCountry.length > 0
@@ -51,29 +71,31 @@ function App() {
   // }) : filteredUsers
 
   const handleDelete = (uuid: string) => {
-    const filteredUsers = users.filter((user) => user.login.uuid !== uuid)
-    setUsers(filteredUsers)
+    // const filteredUsers = users.filter((user) => user.login.uuid !== uuid)
+    // setUsers(filteredUsers)
   }
 
-  const handleReset = () => {
-    setUsers(originalUsers.current)
+  const handleReset = async () => {
+    await refetch()
+    // setUsers(originalUsers.current)
   }
 
-  useEffect(() => {
-    getUsers()
-  }, [])
+  // useEffect(() => {
+  //   getUsers(currentPage)
+  // }, [currentPage])
+
 
   const sortedUsers = useMemo(() => {
 
-    if (sorting === SortBy.NONE ) return filteredUsers;
+    if (sorting === SortBy.NONE) return filteredUsers;
 
     let sortFn = (a: User, b: User) => a.location.country.localeCompare(b.location.country)
 
-    if (sorting === SortBy.NAME ) {
+    if (sorting === SortBy.NAME) {
       sortFn = (a: User, b: User) => a.name.first.localeCompare(b.name.first)
     }
 
-    if (sorting === SortBy.LAST ) {
+    if (sorting === SortBy.LAST) {
       sortFn = (a: User, b: User) => a.name.last.localeCompare(b.name.last)
     }
 
@@ -95,7 +117,19 @@ function App() {
           }} />
         </header>
         <main>
-          <UsersList handleChangeSort={handleChangeSort} deleteUser={handleDelete} showColor={showColor} users={sortedUsers} />
+          {sortedUsers.length > 0 &&
+            <>
+              <Results></Results>
+              <UsersList handleChangeSort={handleChangeSort} deleteUser={handleDelete} showColor={showColor} users={sortedUsers} />
+              {
+                isLoading ? <p>Cargando ...</p> : hasNextPage ?
+                  <button onClick={() => fetchNextPage()}> Cargar mas resultados </button> : null
+              }
+            </>
+          }
+          {!isLoading && isError && <p>Ha habido un error</p>}
+          {!isLoading && !isError && sortedUsers.length === 0 && <p>No hay usuarios</p>}
+
         </main>
       </div>
     </>
